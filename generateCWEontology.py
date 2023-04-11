@@ -10,6 +10,7 @@ import re, os
 import xml.etree.ElementTree as etree
 import lxml.etree
 from datetime import datetime
+from pathlib import Path
 
 LS = "{http://cwe.mitre.org/cwe-6}"
 xml_fn = "data/cwec.xml"
@@ -219,53 +220,31 @@ class Weakness:
                 self.object_facts[oName] = ol
      
         def tostring(self):
-                r = "\nIndividual: " + self.IRI + "\n\tTypes:"
-                first = True
+                r = "\r### " + self.IRI + "\n<" + self.IRI + ">\r\trdf:type owl:NamedIndividual"
                 for t in self.types:
-                        if first:
-                                first = False
-                        else:
-                                r += ","
-                        r += "\n\t\t" + t
+                        r += ";\r\trdf:type :" + t
                 if self.annotations:
-                        r += "\n\tAnnotations:"
-                        first = True
                         for a, l in self.annotations.items():
                                 for v in l:
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
-                                        r += "\n\t\t" + a + " \"" + v + "\""
-                first = True
+                                        r += ";\r\t:" + a + " \"" + v + "\""
                 if self.data_facts:
-                        r += "\n\tFacts:"
                         for f, fd in self.data_facts.items():
                                 for fv, ad in fd.items():
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
-                                        firstAnnot = True
                                         for a, avl in ad.items():
                                                 for av in avl:
-                                                        if firstAnnot:
-                                                                r += "\n\t\tAnnotations:"
-                                                                firstAnnot = False
-                                                        else:
-                                                                r += ","
-                                                        r += "\n\t\t\t" + a + " \"" + av + "\""
-                                        r += "\n\t\t\t" + f + " \"" + fv + "\""
+                                                        r += ";\r\t:" + a + " \"" + av + "\""
+                                        r += ";\r\t:" + f + " \"" + fv + "\""
                 if self.object_facts:
-                        if first: r += "\n\tFacts:"
                         for f, fl in self.object_facts.items():
+                                fact = ""
+                                if ":" not in f: fact = ":"
+                                fact += f
                                 for ind in fl:
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
-                                        r += "\n\t\t\t" + f + " " + ind
-                return r
+                                        value = ""
+                                        if ":" not in ind: value = ":"
+                                        value += ind
+                                        r += ";\r\t" + fact + " " + value
+                return r + "."
         
         def addMembers(self, relationships = False):
                 if relationships:
@@ -378,52 +357,29 @@ class Individual:
                 s.add(v,)
                 self.annotations[a] = s
         def tostring(self):
-                r = "\nIndividual: " + self.name
+                r = "\r###  " + self.name + "\n<" + self.name + ">\r\trdf:type owl:NamedIndividual"
                 if self.types:
-                        r += "\n\tTypes:"
-                        first = True
                         for t in self.types:
-                                if first:
-                                        first = False
-                                else:
-                                        r += ","
-                                r += "\n\t\t" + t
+                                 r += ";\r\trdf:type :" + t
                 if self.annotations:
-                        r += "\n\tAnnotations:"
-                        first = True
                         for a, av in self.annotations.items():
                                 for l in av:
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
-                                        r += "\n\t\t\t" + a + " \"" + l + "\""
-                first = True
+                                        r += ";\r\t:" + a + " \"" + l + "\""
                 if self.data_facts:
-                        r += "\n\tFacts:"
                         for f, fv in self.data_facts.items():
                                 for v in fv:
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
                                         if f == "Link":
-                                                 r += "\n\t\t\t" + f + " \"" + v + "\"^^xsd:anyURI"
+                                                r += ";\r\t:" + f + " \"" + v + "\"^^xsd:anyURI"
                                         else:
-                                                r += "\n\t\t\t" + f + " \"" + v + "\""
+                                                r += ";\r\t:" + f + " \"" + v + "\""
                 if self.object_facts:
-                        if first: r += "\n\tFacts:"
                         for f, fv in self.object_facts.items():
                                 for v in fv:
-                                        if first:
-                                                first = False
-                                        else:
-                                                r += ","
                                         if f == "CPE_ID":
-                                                r += "\n\t\t\tCPE_ID " + convert_fs_to_compressed_uri(v)
+                                                r += ";\r\t cpe:CPE_ID " + convert_fs_to_compressed_uri(v)
                                         else:
-                                                r += "\n\t\t\t" + f + " " + v
-                return r
+                                                r += ";\r\t:" + f + " :" + v
+                return r + "."
                                 
 
 def downloadCWE():
@@ -489,7 +445,10 @@ def generateWeaknessIndividual(item, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        out_file.write(weakness.tostring())
+        try:
+                out_file.write(weakness.tostring())
+        except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
 
 def generateCategoryIndividual(item, out_file):
         weakness = Weakness(item)
@@ -505,7 +464,10 @@ def generateCategoryIndividual(item, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        out_file.write(weakness.tostring())
+        try:
+                out_file.write(weakness.tostring())
+        except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
 
 def generateViewIndividual(item, root, out_file):
         weakness = Weakness(item)
@@ -613,7 +575,10 @@ def generateViewIndividual(item, root, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        out_file.write(weakness.tostring())
+        try:
+                out_file.write(weakness.tostring())
+        except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
 
 def generateIndividuals(root):
 
@@ -651,8 +616,13 @@ def generateIndividuals(root):
                 views = root.find(LS + "Views")
                 for item in views.findall(LS + "View"):
                         view = "cwe-" + item.attrib["ID"]
-                        out_file.write("Prefix: " + view + ": <http://www.semanticweb.org/cht_c/" + view + "#>\r")
-                with open("shell.owl", mode='r', encoding='utf-8') as in_file:
+                        try:
+                                out_file.write("@prefix " + view + ": <http://www.semanticweb.org/cwe/" + view + "#> .\r")
+                        except Exception as err:
+                                print(f"Unexpected {err=}, {type(err)=}")
+                                return
+
+                with open("shell.ttl", mode='r', encoding='utf-8') as in_file:
                         shell = in_file.read()
                         name = root.attrib["Name"]
                         name = "" if name is None else name
@@ -664,42 +634,61 @@ def generateIndividuals(root):
                         date = "" if date is None else date
                         shell = shell.replace("DATE", date)
                         shell = shell.replace("External_Reference \"\"^^rdfs:Literal,", collectExternalReferences())
-                        out_file.write(shell)
-                for item in views.findall(LS + "View"):
-                        view = "cwe-" + item.attrib["ID"] + ":"
-                        out_file.write("\nObjectProperty: " + view + "Has_Member\n\tSubPropertyOf:\r\t\tHas_Member\n\tInverseOf:\n\t\t" + view + "Member_Of")
-                        out_file.write("\nObjectProperty: " + view + "Member_Of\n\tSubPropertyOf:\r\t\tMember_Of\n\tInverseOf:\n\t\t" + view + "Has_Member")
-                        out_file.write("\nObjectProperty: " + view + "ChildOf\n\tSubPropertyOf:\r\t\tChildOf\n\tInverseOf:\n\t\t" + view + "ParentOf")
-                        out_file.write("\nObjectProperty: " + view + "ChildOf-Primary\n\tSubPropertyOf:\r\t\t" + view + "ChildOf\n\tInverseOf:\n\t\t" + view + "ParentOf-Primary")
-                        out_file.write("\nObjectProperty: " + view + "ParentOf\n\tSubPropertyOf:\r\t\tParentOf\n\tInverseOf:\n\t\t" + view + "ChildOf")
-                        out_file.write("\nObjectProperty: " + view + "ParentOf-Primary\n\tSubPropertyOf:\r\t\t" + view + "ParentOf\n\tInverseOf:\n\t\t" + view + "ChildOf-Primary")
-                        if item.attrib["ID"] == "709":
-                                out_file.write("\nObjectProperty: " + view + "StartsWith\n\tSubPropertyOf:\r\t\tStartsWith")
-                                out_file.write("\nObjectProperty: " + view + "StartsWith-Primary\n\tSubPropertyOf:\r\t\t" + view + "StartsWith")
-                                out_file.write("\nObjectProperty: " + view + "StartOfChain\n\tSubPropertyOf:\r\t\tStartOfChain")
-                                out_file.write("\nObjectProperty: " + view + "StartStartOfChain-Primary\n\tSubPropertyOf:\r\t\t" + view + "StartOfChain")
-                                out_file.write("\nObjectProperty: " + view + "CanFollow\n\tSubPropertyOf:\r\t\tCanFollow\n\tCharacteristics:\n\t\tFunctional\n\tInverseOf:\n\t\t" + view + "CanPrecede")
-                                out_file.write("\nObjectProperty: " + view + "CanFollow-Primary\n\tSubPropertyOf:\r\t\t" + view + "CanFollow\n\tCharacteristics:\n\t\tFunctional\n\tInverseOf:\n\t\t" + view + "CanPrecede-Primary")
-                                out_file.write("\nObjectProperty: " + view + "CanPrecede\n\tSubPropertyOf:\r\t\tCanPrecede\n\tCharacteristics:\n\t\tFunctional\n\tInverseOf:\n\t\t" + view + "CanFollow")
-                                out_file.write("\nObjectProperty: " + view + "CanPrecede-Primary\n\tSubPropertyOf:\r\t\t" + view + "CanPrecede\n\tCharacteristics:\n\t\tFunctional\n\tInverseOf:\n\t\t" + view + "CanFollow-Primary")
-                        else:
-                                out_file.write("\nObjectProperty: " + view + "CanFollow\n\tSubPropertyOf:\r\t\tCanFollow\n\tInverseOf:\n\t\t" + view + "CanPrecede")
-                                out_file.write("\nObjectProperty: " + view + "CanFollow-Primary\n\tSubPropertyOf:\r\t\t" + view + "CanFollow\n\tInverseOf:\n\t\t" + view + "CanPrecede-Primary")
-                                out_file.write("\nObjectProperty: " + view + "CanPrecede\n\tSubPropertyOf:\r\t\tCanPrecede\n\tInverseOf:\n\t\t" + view + "CanFollow")
-                                out_file.write("\nObjectProperty: " + view + "CanPrecede-Primary\n\tSubPropertyOf:\r\t\t" + view + "CanPrecede\n\tInverseOf:\n\t\t" + view + "CanFollow-Primary")
-                        out_file.write("\nObjectProperty: " + view + "RequiredBy\n\tSubPropertyOf:\r\t\tRequiredBy\n\tInverseOf:\n\t\t" + view + "Requires")
-                        out_file.write("\nObjectProperty: " + view + "RequiredBy-Primary\n\tSubPropertyOf:\r\t\t" + view + "RequiredBy\n\tInverseOf:\n\t\t" + view + "Requires-Primary")
-                        out_file.write("\nObjectProperty: " + view + "Requires\n\tSubPropertyOf:\r\t\tRequires\n\tInverseOf:\n\t\t" + view + "RequiredBy")
-                        out_file.write("\nObjectProperty: " + view + "Requires-Primary\n\tSubPropertyOf:\r\t\t" + view + "Requires\n\tInverseOf:\n\t\t" + view + "RequiredBy-Primary")
-                        out_file.write("\nObjectProperty: " + view + "CanAlsoBe\n\tSubPropertyOf:\r\t\tCanAlsoBe")
-                        out_file.write("\nObjectProperty: " + view + "CanAlsoBe-Primary\n\tSubPropertyOf:\r\t\t" + view + "CanAlsoBe")
-                        out_file.write("\nObjectProperty: " + view + "PeerOf\n\tSubPropertyOf:\r\t\tPeerOf")
-                        out_file.write("\nObjectProperty: " + view + "PeerOf-Primary\n\tSubPropertyOf:\r\t\t" + view + "PeerOf")                                                         
-                out_file.write("\n")
+                        try:
+                                out_file.write(shell)
+                        except Exception as err:
+                                print(f"Unexpected {err=}, {type(err)=}")
+                                return
+                try:
+                        for item in views.findall(LS + "View"):
+                                view = "cwe-" + item.attrib["ID"]
+                                out_file.write("\r" + view + ":Has_Member rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Has_Member;\r\towl:inverseOf " + view + ":Member_Of .")
+                                out_file.write("\r" + view + ":Member_Of rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Member_Of;\r\towl:inverseOf " + view + ":Has_Member .")
+                                out_file.write("\r" + view + ":ChildOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ChildOf;\r\towl:inverseOf " + view + ":ParentOf .")
+                                out_file.write("\r" + view + ":ChildOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ChildOf;\r\towl:inverseOf " + view + ":ParentOf-Primary .")
+                                out_file.write("\r" + view + ":ParentOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ParentOf;\r\towl:inverseOf " + view + ":ChildOf .")
+                                out_file.write("\r" + view + ":ParentOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ParentOf;\r\towl:inverseOf " + view + ":ChildOf-Primary .")
+                                if item.attrib["ID"] == "709":
+                                        out_file.write("\r" + view + ":StartsWith rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartsWith .")
+                                        out_file.write("\r" + view + ":StartsWith-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartsWith .")
+                                        out_file.write("\r" + view + ":StartOfChain rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartOfChain .")
+                                        out_file.write("\r" + view + ":StartStartOfChain-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartOfChain .")
+                                        out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede .")
+                                        out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
+                                        out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow .")
+                                        out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
+                                else:
+                                        out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\towl:inverseOf " + view + ":CanPrecede .")
+                                        out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
+                                        out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf :CanPrecede;\r\towl:inverseOf " + view + ":CanFollow .")
+                                        out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
+                                out_file.write("\r" + view + ":RequiredBy rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :RequiredBy;\r\towl:inverseOf " + view + ":Requires .")
+                                out_file.write("\r" + view + ":RequiredBy-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":RequiredBy;\r\towl:inverseOf " + view + ":Requires-Primary .")
+                                out_file.write("\r" + view + ":Requires rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Requires;\r\towl:inverseOf " + view + ":RequiredBy .")
+                                out_file.write("\r" + view + ":Requires-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":Requires;\r\towl:inverseOf " + view + ":RequiredBy-Primary .")
+                                out_file.write("\r" + view + ":CanAlsoBe rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanAlsoBe .")
+                                out_file.write("\r" + view + ":CanAlsoBe-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanAlsoBe .")
+                                out_file.write("\r" + view + ":PeerOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :PeerOf .")
+                                out_file.write("\r"+ view + ":PeerOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":PeerOf .")                                                         
+                        out_file.write("\n")
+                except Exception as err:
+                        print(f"Unexpected {err=}, {type(err)=}")
                 
         print("Processing started")
-        fn = "results/cwe.owl"
-        out_file = open(fn, mode='w', encoding='utf-8')
+        fn = "results/cwe.ttl"
+        
+        p = Path("results")
+        try:
+                p.mkdir()
+        except FileExistsError as exc:
+                print(exc)
+                
+        try:
+                out_file = open(fn, mode='w', encoding='utf-8')
+        except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
+                return
+                
         generateShell()
 
         print("Generate weaknesses")
@@ -721,13 +710,21 @@ def generateIndividuals(root):
                 generateViewIndividual(item, root, out_file)
                 
         for i in Individual.extend:
-                out_file.write(i.tostring())
+                try:
+                        out_file.write(i.tostring())
+                except Exception as err:
+                        print(f"Unexpected {err=}, {type(err)=}")
+                        return
 
-        out_file.close()
+        try:
+                out_file.close()
+        except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
+
         print("Processing finished")
 
 def main(download):
-        print("CWE Ontology Generator, Version 5.3")
+        print("CWE Ontology Generator, Version 6.0")
         start = datetime.now()
         print(start)
         if download:

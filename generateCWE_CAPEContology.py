@@ -18,8 +18,7 @@ def generateIndividuals(root):
                         
         fn = "capec.ttl"
         with open(fn, mode='w', encoding='utf-8') as out_file:
-                
-                out_file.write("@prefix capec: <http://www.semanticweb.org/capec#> .\n")
+
                 generateShell(out_file)
 
                 for item in root.findall(LS + "Weaknesses/" + LS + "Weakness/" + LS + "Related_Attack_Patterns/" + LS + "Related_Attack_Pattern"):

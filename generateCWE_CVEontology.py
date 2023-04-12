@@ -19,7 +19,6 @@ def generateIndividuals(root):
         fn = "cve.ttl"
         with open(fn, mode='w', encoding='utf-8') as out_file:
                 
-                out_file.write("@prefix cve: <http://www.semanticweb.org/cht_c/cve#> .\n")
                 generateShell(out_file)
 
                 for item in root.findall(LS + "Weaknesses/" + LS + "Weakness/" + LS + "Observed_Examples/" + LS + "Observed_Example/" + LS + "Reference"):

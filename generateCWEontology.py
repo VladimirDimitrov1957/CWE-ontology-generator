@@ -16,6 +16,7 @@ LS = "{http://cwe.mitre.org/cwe-6}"
 xml_fn = "data/cwec.xml"
 
 def code(s):
+        if s is None: return ""
         return s.replace("\\", "\\\\").replace("\"", "\\\"")
 
 def flat(s):
@@ -39,6 +40,8 @@ class Weakness:
         def addType(self, aName):
                 if aName == "Category":
                         self.types.add("Category")
+                elif aName == "View":
+                        self.types.add("View")
                 else:
                         self.types.add(self.element.attrib[aName])
                 
@@ -80,14 +83,14 @@ class Weakness:
                         fd = self.data_facts[n]
                         if value not in fd: fd[value] = dict()
                         vd = fd[value]
-                        if an not in vd: vd[an] = list()
+                        if an not in vd: vd[an] = set()
                         al = vd[an]
                         for ae in self.element.findall(path + LS + aTag):
                                 if structured:
                                         aValue = stext(etree.tostring(ae).decode('UTF-8'), aTag)
                                 else:
                                         aValue = flat(ae.text)
-                                al.append(code(aValue),)
+                                al.add(code(aValue))
                         vd[an] = al
                         fd[value] = vd
                         self.data_facts[n] = fd
@@ -102,20 +105,20 @@ class Weakness:
                                 value = stext(etree.tostring(e).decode('UTF-8'), tag)
                         else:
                                 value = flat(e.text)
-                        if name not in self.annotations: self.annotations[n] = list()
+                        if name not in self.annotations: self.annotations[n] = set()
                         l = self.annotations[n]
-                        l.append(code(value))
+                        l.add(code(value))
                         self.annotations[n] = l
         
         def addReferences(self):
                 path = LS + "References/" + LS + "Reference"
                 name = "Reference"
                 for e in self.element.findall(path):
-                        if name not in self.annotations: self.annotations[name] = list()
+                        if name not in self.annotations: self.annotations[name] = set()
                         l = self.annotations[name]
                         value = "External reference ID: " + e.attrib["External_Reference_ID"]
                         if "Section" in e.attrib: value += "\nSection: " + e.attrib["Section"]
-                        l.append(code(value))
+                        l.add(code(value))
                         self.annotations[name] = l
 
         def addContentHystory(self):
@@ -163,21 +166,21 @@ class Weakness:
         def addObjectFact(self, path, oName, cName, cADict):
                 count = 0
                 for e in self.element.findall(path + LS + cName):
-                        if oName not in self.object_facts: self.object_facts[oName] = list()
+                        if oName not in self.object_facts: self.object_facts[oName] = set()
                         ol= self.object_facts[oName]
                         name = self.IRI + "_" + cName + str(count)
                         ind = Individual(name)
                         ind.addType(cName)
                         for k, v in cADict.items():
                                 if k in e.attrib: ind.addDataFact(v, code(e.attrib[k]))
-                        ol.append(name,)
+                        ol.add(name)
                         self.object_facts[oName] = ol
                         count += 1
 
         def addObjectFactWithAnnotation(self, path, oName, cName, cADict = {}, cSDict = {}, cANDict = {}, references = False, note = False):
                 count = 0
                 for e in self.element.findall(path):
-                        if oName not in self.object_facts: self.object_facts[oName] = list()
+                        if oName not in self.object_facts: self.object_facts[oName] = set()
                         ol = self.object_facts[oName]
                         name = self.IRI + "_" + cName + str(count)
                         ind = Individual(name)
@@ -200,7 +203,7 @@ class Weakness:
                                         else:
                                                 ind.addAnnotation(v[0], code(el.text))
                         if note: ind.addAnnotation("Note_Description", code(stext(etree.tostring(e).decode('UTF-8'), "Note")))
-                        ol.append(name,)
+                        ol.add(name)
                         self.object_facts[oName] = ol
                         if references:
                                 for ref in e.findall(LS + "References/" + LS + "Reference"):
@@ -213,14 +216,14 @@ class Weakness:
                 els = self.element.findall(LS + "Related_Attack_Patterns/" + LS + "Related_Attack_Pattern")
                 if not els: return 
                 oName = "Related_Attack_Pattern"
-                if oName not in self.object_facts: self.object_facts[oName] = list()
+                if oName not in self.object_facts: self.object_facts[oName] = set()
                 ol = self.object_facts[oName]
                 for e in  els:
-                        ol.append("capec:CAPEC-" + e.attrib["CAPEC_ID"],)
+                        ol.add("capec:CAPEC-" + e.attrib["CAPEC_ID"])
                 self.object_facts[oName] = ol
      
         def tostring(self):
-                r = "\r### " + self.IRI + "\n<" + self.IRI + ">\r\trdf:type owl:NamedIndividual"
+                r = "\r### " + self.IRI + "\n:" + self.IRI + "\r\trdf:type owl:NamedIndividual;\r\t:ID " + self.element.attrib["ID"]
                 for t in self.types:
                         r += ";\r\trdf:type :" + t
                 if self.annotations:
@@ -255,15 +258,15 @@ class Weakness:
                 if e is not None:
                         for el in e.findall(LS + "Member_Of"):
                                 oName = "cwe-" + str(el.attrib["View_ID"]) + ":Member_Of"
-                                if oName not in self.object_facts: self.object_facts[oName] = list()
+                                if oName not in self.object_facts: self.object_facts[oName] = set()
                                 ol = self.object_facts[oName]
-                                ol.append("cwe-" + str(el.attrib["CWE_ID"]),)
+                                ol.add("cwe-" + str(el.attrib["CWE_ID"]))
                                 self.object_facts[oName] = ol
                         for el in e.findall(LS + "Has_Member"):
                                 oName = "cwe-" + str(el.attrib["View_ID"]) + ":Has_Member"
-                                if oName not in self.object_facts: self.object_facts[oName] = list()
+                                if oName not in self.object_facts: self.object_facts[oName] = set()
                                 ol = self.object_facts[oName]
-                                ol.append("CWE-" + str(el.attrib["CWE_ID"]),)
+                                ol.add("CWE-" + str(el.attrib["CWE_ID"]))
                                 self.object_facts[oName] = ol
                                 
         def addRelatedWeaknesses(self):
@@ -277,17 +280,19 @@ class Weakness:
                                         oName = "cwe-709:" + nat
                                 else:
                                         oName = "cwe-" + str(vs) + ":" + nat
-                                if "Ordinal" in el.attrib: oName += "-Primary"
-                                if oName not in self.object_facts: self.object_facts[oName] = list()
+                                if "Ordinal" in el.attrib:
+                                        oName += "-Primary"
+                                        self.data_facts["Ordinal"] = {"Primary":{}}
+                                if oName not in self.object_facts: self.object_facts[oName] = set()
                                 ol = self.object_facts[oName]
-                                ol.append("CWE-" + str(el.attrib["CWE_ID"]),)
+                                ol.add("CWE-" + str(el.attrib["CWE_ID"]))
                                 self.object_facts[oName] = ol
                                 
         def addContent(self, viewID, cweID):
                 oName = "cwe-" + str(viewID) + ":Has_Member"
-                if oName not in self.object_facts: self.object_facts[oName] = list()
+                if oName not in self.object_facts: self.object_facts[oName] = set()
                 ol = self.object_facts[oName]
-                ol.append("CWE-" + cweID,)
+                ol.add("CWE-" + cweID,)
                 self.object_facts[oName] = ol
                 
         def addDemonstrativeExamples(self):
@@ -296,7 +301,7 @@ class Weakness:
                 aName = "Demonstrative_Example_ID"
                 count = 0
                 for e in self.element.findall(path):
-                        if oName not in self.object_facts: self.object_facts[oName] = list()
+                        if oName not in self.object_facts: self.object_facts[oName] = set()
                         ol = self.object_facts[oName]
                         name = self.IRI + "_" + oName + str(count)
                         ind = Individual(name)
@@ -319,10 +324,10 @@ class Weakness:
                                 ind2 = Individual(name2)
                                 ind2.addType(ec)
                                 ind2.addDataFact("Nature", sc.attrib["Nature"])
-                                if "Language" in sc.attrib: ind2.addDataFact("Language", sc.attrib["Language"])
+                                if "Language" in sc.attrib: ind2.addDataFact("LanguageName", sc.attrib["Language"])
                                 ind2.addAnnotation("Structured_Code", code(stext(etree.tostring(sc).decode('UTF-8'), "Example_Code")))
                                 count2 += 1
-                        ol.append(name,)
+                        ol.add(name)
                         self.object_facts[oName] = ol
                         for ref in e.findall(LS + "References/" + LS + "Reference"):
                                 an = "External reference ID: " + ref.attrib["External_Reference_ID"]
@@ -344,20 +349,20 @@ class Individual:
         def addDataFact(self, d, v):
                 if d not in self.data_facts: self.data_facts[d] = set()
                 ds = self.data_facts[d]
-                ds.add(v,)
+                ds.add(v)
                 self.data_facts[d] = ds
         def addObjectFact(self, d, v):
                 if d not in self.object_facts: self.object_facts[d] = set()
                 ds = self.object_facts[d]
-                ds.add(v,)
+                ds.add(v)
                 self.object_facts[d] = ds
         def addAnnotation(self, a, v):
                 if a not in self.annotations: self.annotations[a] = set()
                 s = self.annotations[a]
-                s.add(v,)
+                s.add(v)
                 self.annotations[a] = s
         def tostring(self):
-                r = "\r###  " + self.name + "\n<" + self.name + ">\r\trdf:type owl:NamedIndividual"
+                r = "\r###  " + self.name + "\n:" + self.name + "\r\trdf:type owl:NamedIndividual"
                 if self.types:
                         for t in self.types:
                                  r += ";\r\trdf:type :" + t
@@ -376,9 +381,10 @@ class Individual:
                         for f, fv in self.object_facts.items():
                                 for v in fv:
                                         if f == "CPE_ID":
-                                                r += ";\r\t cpe:CPE_ID " + convert_fs_to_compressed_uri(v)
+                                                r += ";\r\tcpe:CPE_ID " + convert_fs_to_compressed_uri(v)
                                         else:
-                                                r += ";\r\t:" + f + " :" + v
+                                                if ":" not in v: v = ":" + v
+                                                r += ";\r\t:" + f + " " + v
                 return r + "."
                                 
 
@@ -412,6 +418,7 @@ def generateWeaknessIndividual(item, out_file):
         weakness.addDataFactWithAnnotation("Term", "Description", path = LS + "Alternate_Terms/" + LS + "Alternate_Term/", name = "Alternate_Term", aName = "Alternate_Term_Description", structured = True)
         weakness.addDataFact("Likelihood_Of_Exploit")
         weakness.addDataFact("Functional_Area", path = LS + "Functional_Areas/")
+        weakness.addDataFactWithAnnotation("Phase", "Note", path = LS + "Modes_Of_Introduction/" + LS + "Introduction/", name = "Mode_Of_Introduction", aName = "Mode_Of_Introduction_Note")
         lang = {"Name":"LanguageName", "Class":"LanguageClass", "Prevalence":"Prevalence"}
         weakness.addObjectFact(LS + "Applicable_Platforms/", "Applicable_Platform", "Language", lang)
         os = {"Name":"OperatingSystemName", "Class":"OperatingSystemClass", "Prevalence":"Prevalence", "Version":"Version", "CPE_ID":"CPE_ID"}
@@ -445,10 +452,7 @@ def generateWeaknessIndividual(item, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        try:
-                out_file.write(weakness.tostring())
-        except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
+        out_file.write(weakness.tostring())
 
 def generateCategoryIndividual(item, out_file):
         weakness = Weakness(item)
@@ -464,10 +468,7 @@ def generateCategoryIndividual(item, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        try:
-                out_file.write(weakness.tostring())
-        except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
+        out_file.write(weakness.tostring())
 
 def generateViewIndividual(item, root, out_file):
         weakness = Weakness(item)
@@ -541,6 +542,7 @@ def generateViewIndividual(item, root, out_file):
                                 for p in w.findall(LS + "Modes_Of_Introduction/" + LS + "Introduction/" + LS + "Phase"):
                                         if p.text == "Architecture and Design":
                                                 weakness.addContent(item.attrib["ID"], w.attrib["ID"])
+                                                break
                 elif n == 702:
                         for w in root.findall(LS + "Weaknesses/" + LS + "Weakness"):
                                 for p in w.findall(LS + "Modes_Of_Introduction/" + LS + "Introduction/" + LS + "Phase"):
@@ -575,10 +577,7 @@ def generateViewIndividual(item, root, out_file):
         ca = {"Type":"Type"}
         weakness.addObjectFactWithAnnotation(LS + "Notes/" + LS + "Note", "Note", "Note", cADict = ca, note = True)
         weakness.addContentHystory()
-        try:
-                out_file.write(weakness.tostring())
-        except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
+        out_file.write(weakness.tostring())
 
 def generateIndividuals(root):
 
@@ -587,10 +586,11 @@ def generateIndividuals(root):
                 def collectExternalReferences():
                         print("Generate external references")
                         externalreferences = root.find(LS + "External_References")
+                        r = ""
                         if externalreferences is not None:
-                                r = ""
                                 for e in externalreferences.findall(LS + "External_Reference"):
-                                        r += "\n\tExternal_Reference \""
+                                        r += ":External_Reference \""
+                                        if "Reference_ID" in e.attrib: r += "\nReference_ID: " + e.attrib["Reference_ID"]
                                         for a in e.findall(LS + "Author"):
                                                 r += "\nAuthor: " + code(a.text)
                                         r += "\nTitle: " + code(e.find(LS + "Title").text)
@@ -610,18 +610,14 @@ def generateIndividuals(root):
                                         if url is not None: r += "\nURL: " + code(url.text)
                                         url = e.find(LS + "URL_Date")
                                         if url is not None: r += "\nURL date: " + code(url.text)
-                                        r += "\"^^rdfs:Literal,"
-                                return r
+                                        r += "\"^^rdfs:Literal ;\r"
+                        return r
 
                 views = root.find(LS + "Views")
                 for item in views.findall(LS + "View"):
                         view = "cwe-" + item.attrib["ID"]
-                        try:
-                                out_file.write("@prefix " + view + ": <http://www.semanticweb.org/cwe/" + view + "#> .\r")
-                        except Exception as err:
-                                print(f"Unexpected {err=}, {type(err)=}")
-                                return
-
+                        out_file.write("@prefix " + view + ": <http://www.semanticweb.org/cwe/" + view + "#> .\r")
+                        
                 with open("shell.ttl", mode='r', encoding='utf-8') as in_file:
                         shell = in_file.read()
                         name = root.attrib["Name"]
@@ -633,46 +629,40 @@ def generateIndividuals(root):
                         date = root.attrib["Date"]
                         date = "" if date is None else date
                         shell = shell.replace("DATE", date)
-                        shell = shell.replace("External_Reference \"\"^^rdfs:Literal,", collectExternalReferences())
-                        try:
-                                out_file.write(shell)
-                        except Exception as err:
-                                print(f"Unexpected {err=}, {type(err)=}")
-                                return
-                try:
-                        for item in views.findall(LS + "View"):
-                                view = "cwe-" + item.attrib["ID"]
-                                out_file.write("\r" + view + ":Has_Member rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Has_Member;\r\towl:inverseOf " + view + ":Member_Of .")
-                                out_file.write("\r" + view + ":Member_Of rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Member_Of;\r\towl:inverseOf " + view + ":Has_Member .")
-                                out_file.write("\r" + view + ":ChildOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ChildOf;\r\towl:inverseOf " + view + ":ParentOf .")
-                                out_file.write("\r" + view + ":ChildOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ChildOf;\r\towl:inverseOf " + view + ":ParentOf-Primary .")
-                                out_file.write("\r" + view + ":ParentOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ParentOf;\r\towl:inverseOf " + view + ":ChildOf .")
-                                out_file.write("\r" + view + ":ParentOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ParentOf;\r\towl:inverseOf " + view + ":ChildOf-Primary .")
-                                if item.attrib["ID"] == "709":
-                                        out_file.write("\r" + view + ":StartsWith rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartsWith .")
-                                        out_file.write("\r" + view + ":StartsWith-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartsWith .")
-                                        out_file.write("\r" + view + ":StartOfChain rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartOfChain .")
-                                        out_file.write("\r" + view + ":StartStartOfChain-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartOfChain .")
-                                        out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede .")
-                                        out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
-                                        out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow .")
-                                        out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
-                                else:
-                                        out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\towl:inverseOf " + view + ":CanPrecede .")
-                                        out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
-                                        out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf :CanPrecede;\r\towl:inverseOf " + view + ":CanFollow .")
-                                        out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
-                                out_file.write("\r" + view + ":RequiredBy rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :RequiredBy;\r\towl:inverseOf " + view + ":Requires .")
-                                out_file.write("\r" + view + ":RequiredBy-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":RequiredBy;\r\towl:inverseOf " + view + ":Requires-Primary .")
-                                out_file.write("\r" + view + ":Requires rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Requires;\r\towl:inverseOf " + view + ":RequiredBy .")
-                                out_file.write("\r" + view + ":Requires-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":Requires;\r\towl:inverseOf " + view + ":RequiredBy-Primary .")
-                                out_file.write("\r" + view + ":CanAlsoBe rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanAlsoBe .")
-                                out_file.write("\r" + view + ":CanAlsoBe-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanAlsoBe .")
-                                out_file.write("\r" + view + ":PeerOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :PeerOf .")
-                                out_file.write("\r"+ view + ":PeerOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":PeerOf .")                                                         
-                        out_file.write("\n")
-                except Exception as err:
-                        print(f"Unexpected {err=}, {type(err)=}")
+                        shell = shell.replace(":External_Reference \"\"^^rdfs:Literal ;\n", collectExternalReferences())
+                        out_file.write(shell)
+
+                for item in views.findall(LS + "View"):
+                        view = "cwe-" + item.attrib["ID"]
+                        out_file.write("\r" + view + ":Has_Member rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Has_Member;\r\towl:inverseOf " + view + ":Member_Of .")
+                        out_file.write("\r" + view + ":Member_Of rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Member_Of;\r\towl:inverseOf " + view + ":Has_Member .")
+                        out_file.write("\r" + view + ":ChildOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ChildOf;\r\towl:inverseOf " + view + ":ParentOf .")
+                        out_file.write("\r" + view + ":ChildOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ChildOf;\r\towl:inverseOf " + view + ":ParentOf-Primary .")
+                        out_file.write("\r" + view + ":ParentOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :ParentOf;\r\towl:inverseOf " + view + ":ChildOf .")
+                        out_file.write("\r" + view + ":ParentOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":ParentOf;\r\towl:inverseOf " + view + ":ChildOf-Primary .")
+                        if item.attrib["ID"] == "709":
+                                out_file.write("\r" + view + ":StartsWith rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartsWith .")
+                                out_file.write("\r" + view + ":StartsWith-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartsWith .")
+                                out_file.write("\r" + view + ":StartOfChain rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :StartOfChain .")
+                                out_file.write("\r" + view + ":StartStartOfChain-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":StartOfChain .")
+                                out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede .")
+                                out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
+                                out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow .")
+                                out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\trdf:type owl:InverseFunctionalProperty;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
+                        else:
+                                out_file.write("\r" + view + ":CanFollow rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanFollow;\r\towl:inverseOf " + view + ":CanPrecede .")
+                                out_file.write("\r" + view + ":CanFollow-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanFollow;\r\towl:inverseOf " + view + ":CanPrecede-Primary .")
+                                out_file.write("\r" + view + ":CanPrecede rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf :CanPrecede;\r\towl:inverseOf " + view + ":CanFollow .")
+                                out_file.write("\r" + view + ":CanPrecede-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanPrecede;\r\towl:inverseOf " + view + ":CanFollow-Primary .")
+                        out_file.write("\r" + view + ":RequiredBy rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :RequiredBy;\r\towl:inverseOf " + view + ":Requires .")
+                        out_file.write("\r" + view + ":RequiredBy-Primary rdf:type owl:ObjectProperty; \r\trdfs:subPropertyOf " + view + ":RequiredBy;\r\towl:inverseOf " + view + ":Requires-Primary .")
+                        out_file.write("\r" + view + ":Requires rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :Requires;\r\towl:inverseOf " + view + ":RequiredBy .")
+                        out_file.write("\r" + view + ":Requires-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":Requires;\r\towl:inverseOf " + view + ":RequiredBy-Primary .")
+                        out_file.write("\r" + view + ":CanAlsoBe rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :CanAlsoBe .")
+                        out_file.write("\r" + view + ":CanAlsoBe-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":CanAlsoBe .")
+                        out_file.write("\r" + view + ":PeerOf rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf :PeerOf .")
+                        out_file.write("\r"+ view + ":PeerOf-Primary rdf:type owl:ObjectProperty;\r\trdfs:subPropertyOf " + view + ":PeerOf .")                                                         
+                out_file.write("\n")
                 
         print("Processing started")
         fn = "results/cwe.ttl"
@@ -683,11 +673,7 @@ def generateIndividuals(root):
         except FileExistsError as exc:
                 print(exc)
                 
-        try:
-                out_file = open(fn, mode='w', encoding='utf-8')
-        except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
-                return
+        out_file = open(fn, mode='w', encoding='utf-8')
                 
         generateShell()
 
@@ -710,21 +696,13 @@ def generateIndividuals(root):
                 generateViewIndividual(item, root, out_file)
                 
         for i in Individual.extend:
-                try:
-                        out_file.write(i.tostring())
-                except Exception as err:
-                        print(f"Unexpected {err=}, {type(err)=}")
-                        return
+                out_file.write(i.tostring())
 
-        try:
-                out_file.close()
-        except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
-
+        out_file.close()
         print("Processing finished")
 
 def main(download):
-        print("CWE Ontology Generator, Version 6.0")
+        print("CWE Ontology Generator, Version 6.1")
         start = datetime.now()
         print(start)
         if download:

@@ -1,27 +1,26 @@
+@prefix : <http://www.semanticweb.org/cwe#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix cve: <http://www.semanticweb.org/cve#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix cpe: <http://www.semanticweb.org/cpe#> .
-@prefix cve: <http://www.semanticweb.org/cve#> .
 @prefix capec: <http://www.semanticweb.org/capec#> .
-@prefix : <http://www.semanticweb.org/cwe#> .
 @base <http://www.semanticweb.org/cwe> .
 
 <http://www.semanticweb.org/cwe> rdf:type owl:Ontology ;
-                                        :External_Reference ""^^rdfs:Literal ;
-                                        :catalog """NAME
+                                  :External_Reference ""^^rdfs:Literal ;
+                                  :catalog """NAME
 VERSION
 DATE"""@en ;
-                                        rdfs:comment """The CWE Schema is maintained by The MITRE Corporation and developed in partnership with the public CWE Community. For more information, including how to get involved in the project and how to submit change requests, please visit the CWE website at https://cwe.mitre.org.
+                                  rdfs:comment """The CWE Schema is maintained by The MITRE Corporation and developed in partnership with the public CWE Community. For more information, including how to get involved in the project and how to submit change requests, please visit the CWE website at https://cwe.mitre.org.
 Core Definition
-6.5
-20 July 2021
-Copyright (c) 2006-2021, The MITRE Corporation. All rights reserved. The contents of this file are subject to the terms of the CWE License located at https://cwe.mitre.org/about/termsofuse.html. See the CWE License for the specific language governing permissions and limitations for use of this schema. When distributing copies of the CWE Schema, this license header must be included.""" ;
-                                        rdfs:isDefinedBy "Vladimir Dimitrov"@en ;
-                                        owl:versionInfo "1.1"@en .
+6.10
+January 31, 2023
+Copyright (c) 2006-2023, The MITRE Corporation. All rights reserved. The contents of this file are subject to the terms of the CWE License located at https://cwe.mitre.org/about/termsofuse.html. See the CWE License for the specific language governing permissions and limitations for use of this schema. When distributing copies of the CWE Schema, this license header must be included.""" ;
+                                  rdfs:isDefinedBy "Vladimir Dimitrov"@en ;
+                                  owl:versionInfo "1.2"@en .
 
 #################################################################
 #    Annotation properties
@@ -248,7 +247,7 @@ xsd:string rdf:type rdfs:Datatype .
 :CPE_ID rdf:type owl:ObjectProperty ,
                  owl:FunctionalProperty ;
         rdfs:domain :Operating_System ;
-        rdfs:range cpe:CPEEntry .
+        rdfs:range <http://www.semanticweb.org/cpe#CPEEntry> .
 
 
 ###  http://www.semanticweb.org/cwe#CanAlsoBe
@@ -485,14 +484,18 @@ The ResourceEnumeration simple type defines different resources of a system."""^
                                                        rdf:rest [ rdf:type rdf:List ;
                                                                   rdf:first "Microcomputer" ;
                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                             rdf:first "Workstation" ;
-                                                                             rdf:rest rdf:nil
+                                                                             rdf:first "Not Architecture-Specific" ;
+                                                                             rdf:rest [ rdf:type rdf:List ;
+                                                                                        rdf:first "Workstation" ;
+                                                                                        rdf:rest rdf:nil
+                                                                                      ]
                                                                            ]
                                                                 ]
                                                      ]
                                           ]
                               ] ;
-                   rdfs:comment "The ArchitectureClassEnumeration simple type contains a list of values corresponding to known classes of architectures. The value \"Architecture-Independent\" is used to associate with all architectures."^^rdfs:Literal .
+                   rdfs:comment """The ArchitectureClassEnumeration simple type contains a list of values corresponding to known classes of architectures. The value \"Not Architecture-Specific\" is used to indicate that the entry is not limited to a small set of architectures, i.e., it can appear in many different architectures.
+Note: 'Architecture-Independent' value was changed in CWE 4.9/schema 6.9 and will be deprecated in schema 7.0. Use 'Not Architecture-Specific' instead.""" .
 
 
 ###  http://www.semanticweb.org/cwe#ArchitectureName
@@ -614,7 +617,8 @@ The StakeholderEnumeration simple type defines the different types of users with
                                                            ]
                                                 ]
                                     ] ;
-                         rdfs:comment "The DetectionEffectivenessEnumeration simple type defines the different levels of effectiveness that a detection method may have in detecting an associated weakness. The value \"High\" is used to describe a method that succeeds frequently and does not result in many false reports. The value \"Moderate\" is used to describe a method that is applicable to multiple circumstances, but it may not have complete coverage of the weakness, or it may result in a number of incorrect reports. The \"SOAR Partial\" value means that according to SOAR this method can be cost-effective for partial coverage of the objective. The value \"Opportunistic\" is used to describe a method that does not directly target the weakness but may still succeed by chance, rather than in a reliable manner. The value \"Limited\" is used to describe a method that may be useful in limited circumstances, only applicable to a subset of potential instances of a given weakness type, requires training/customization, or gives limited visibility. Even in its limited capacity, this may be part of a good defense in depth strategy. The value \"None\" is used to describe a method that is highly unlikely to work. However, it may be included in an entry to emphasize common, yet incorrect, methods that developers might introduce."^^rdfs:Literal .
+                         rdfs:comment """The DetectionEffectivenessEnumeration simple type defines the different levels of effectiveness that a detection method may have in detecting an associated weakness. The value \"High\" is used to describe a method that succeeds frequently and does not result in many false reports. The value \"Moderate\" is used to describe a method that is applicable to multiple circumstances, but it may not have complete coverage of the weakness, or it may result in a number of incorrect reports. The \"SOAR Partial\" value means that according to SOAR this method can be cost-effective for partial coverage of the objective. The value \"Opportunistic\" is used to describe a method that does not directly target the weakness but may still succeed by chance, rather than in a reliable manner. The value \"Limited\" is used to describe a method that may be useful in limited circumstances, only applicable to a subset of potential instances of a given weakness type, requires training/customization, or gives limited visibility. Even in its limited capacity, this may be part of a good defense in depth strategy. The value \"None\" is used to describe a method that is highly unlikely to work. However, it may be included in an entry to emphasize common, yet incorrect, methods that developers might introduce.
+\"SOAR Partial\" is used to indicate that according to the IATAC State Of the Art Report (SOAR), the detection method is partially effective.""" .
 
 
 ###  http://www.semanticweb.org/cwe#Detection_Method_ID
@@ -700,20 +704,23 @@ The StakeholderEnumeration simple type defines the different types of users with
                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
                                                                                                                                                                               rdf:first "Networking" ;
                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                         rdf:first "Number Processing" ;
+                                                                                                                                                                                         rdf:first "Not Functional-Area-Specific" ;
                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                    rdf:first "Power" ;
+                                                                                                                                                                                                    rdf:first "Number Processing" ;
                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                               rdf:first "Program Invocation" ;
+                                                                                                                                                                                                               rdf:first "Power" ;
                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                          rdf:first "Protection Mechanism" ;
+                                                                                                                                                                                                                          rdf:first "Program Invocation" ;
                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                     rdf:first "Session Management" ;
+                                                                                                                                                                                                                                     rdf:first "Protection Mechanism" ;
                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                rdf:first "Signals" ;
+                                                                                                                                                                                                                                                rdf:first "Session Management" ;
                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                           rdf:first "String Processing" ;
-                                                                                                                                                                                                                                                           rdf:rest rdf:nil
+                                                                                                                                                                                                                                                           rdf:first "Signals" ;
+                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                      rdf:first "String Processing" ;
+                                                                                                                                                                                                                                                                      rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                    ]
                                                                                                                                                                                                                                                          ]
                                                                                                                                                                                                                                               ]
                                                                                                                                                                                                                                    ]
@@ -735,8 +742,8 @@ The StakeholderEnumeration simple type defines the different types of users with
                                                    ]
                                         ]
                             ] ;
-                 rdfs:comment """The FunctionalAreasType complex type contains one or more functional_area elements, each of which identifies the functional area in which the weakness is most likely to occur. For example, CWE-23: Relative Path Traversal may occur in functional areas of software related to file processing. Each applicable functional area should have a new Functional_Area element, and standard title capitalization should be applied to each area.
-The FunctionalAreaEnumeration simple type defines the different functional areas in which the weakness may appear. The value \"Functional-Area-Independent\" is used to associate with all functional areas."""^^rdfs:Literal .
+                 rdfs:comment """The FunctionalAreaEnumeration simple type defines the different functional areas in which the weakness may appear. The value \"Functional-Area-Independent\" is used to indicate that the entry is not limited to a small set of functional areas, i.e., it can appear in many different functional areas.
+Note: 'Functional-Area-Independent' value was changed in CWE 4.9/schema 6.9 and will be deprecated in schema 7.0. Use 'Not Functional-Area-Specific' instead.""" .
 
 
 ###  http://www.semanticweb.org/cwe#ID
@@ -832,105 +839,6 @@ The FunctionalAreaEnumeration simple type defines the different functional areas
         rdfs:comment "The TechnicalImpactEnumeration simple type describes the technical impacts that can arise if an adversary successfully exploits a weakness."^^rdfs:Literal .
 
 
-###  http://www.semanticweb.org/cwe#Language
-:Language rdf:type owl:DatatypeProperty ,
-                   owl:FunctionalProperty ;
-          rdfs:domain :Example_Code ;
-          rdfs:range [ rdf:type rdfs:Datatype ;
-                       owl:oneOf [ rdf:type rdf:List ;
-                                   rdf:first "ASP" ;
-                                   rdf:rest [ rdf:type rdf:List ;
-                                              rdf:first "ASP.NET" ;
-                                              rdf:rest [ rdf:type rdf:List ;
-                                                         rdf:first "Ada" ;
-                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                    rdf:first "Basic" ;
-                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                               rdf:first "C" ;
-                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                          rdf:first "C#" ;
-                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                     rdf:first "C++" ;
-                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                rdf:first "COBOL" ;
-                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                           rdf:first "F#" ;
-                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                      rdf:first "Fortran" ;
-                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                 rdf:first "Go" ;
-                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                            rdf:first "HTML" ;
-                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                       rdf:first "JSP" ;
-                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                  rdf:first "Java" ;
-                                                                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                             rdf:first "JavaScript" ;
-                                                                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                        rdf:first "Objective-C" ;
-                                                                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                   rdf:first "Other" ;
-                                                                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                              rdf:first "PHP" ;
-                                                                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                         rdf:first "Pascal" ;
-                                                                                                                                                                                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                    rdf:first "Perl" ;
-                                                                                                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                               rdf:first "Python" ;
-                                                                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                          rdf:first "Ruby" ;
-                                                                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                     rdf:first "Rust" ;
-                                                                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                rdf:first "SQL" ;
-                                                                                                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                           rdf:first "Shell" ;
-                                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                      rdf:first "Swift" ;
-                                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                 rdf:first "VB.NET" ;
-                                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                            rdf:first "VHDL" ;
-                                                                                                                                                                                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                                       rdf:first "Verilog" ;
-                                                                                                                                                                                                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                                                  rdf:first "XML" ;
-                                                                                                                                                                                                                                                                                                                                                                  rdf:rest rdf:nil
-                                                                                                                                                                                                                                                                                                                                                                ]
-                                                                                                                                                                                                                                                                                                                                                     ]
-                                                                                                                                                                                                                                                                                                                                          ]
-                                                                                                                                                                                                                                                                                                                               ]
-                                                                                                                                                                                                                                                                                                                    ]
-                                                                                                                                                                                                                                                                                                         ]
-                                                                                                                                                                                                                                                                                              ]
-                                                                                                                                                                                                                                                                                   ]
-                                                                                                                                                                                                                                                                        ]
-                                                                                                                                                                                                                                                             ]
-                                                                                                                                                                                                                                                  ]
-                                                                                                                                                                                                                                       ]
-                                                                                                                                                                                                                            ]
-                                                                                                                                                                                                                 ]
-                                                                                                                                                                                                      ]
-                                                                                                                                                                                           ]
-                                                                                                                                                                                ]
-                                                                                                                                                                     ]
-                                                                                                                                                          ]
-                                                                                                                                               ]
-                                                                                                                                    ]
-                                                                                                                         ]
-                                                                                                              ]
-                                                                                                   ]
-                                                                                        ]
-                                                                             ]
-                                                                  ]
-                                                       ]
-                                            ]
-                                 ]
-                     ] .
-
-
 ###  http://www.semanticweb.org/cwe#LanguageClass
 :LanguageClass rdf:type owl:DatatypeProperty ,
                         owl:FunctionalProperty ;
@@ -941,84 +849,107 @@ The FunctionalAreaEnumeration simple type defines the different functional areas
                                         rdf:rest [ rdf:type rdf:List ;
                                                    rdf:first "Compiled" ;
                                                    rdf:rest [ rdf:type rdf:List ;
-                                                              rdf:first "Interpreted" ;
+                                                              rdf:first "Hardware Description Language" ;
                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                         rdf:first "Language-Independent" ;
-                                                                         rdf:rest rdf:nil
+                                                                         rdf:first "Interpreted" ;
+                                                                         rdf:rest [ rdf:type rdf:List ;
+                                                                                    rdf:first "Language-Independent" ;
+                                                                                    rdf:rest [ rdf:type rdf:List ;
+                                                                                               rdf:first "Not Language-Specific" ;
+                                                                                               rdf:rest rdf:nil
+                                                                                             ]
+                                                                                  ]
                                                                        ]
                                                             ]
                                                  ]
                                       ]
                           ] ;
-               rdfs:comment "The LanguageClassEnumeration simple type contains a list of values corresponding to different classes of source code languages. The value \"Language-Independent\" is used to associate with all languages."^^rdfs:Literal .
+               rdfs:comment """The LanguageClassEnumeration simple type contains a list of values corresponding to different classes of source code languages. The value \"Not Language-Specific\" is used to indicate that the entry is not limited to a small set of languages.
+Note: 'Language-Independent' value was changed in CWE 4.9/schema 6.9 and will be deprecated in schema 7.0. Use 'Not Language-Specific' instead.""" .
 
 
 ###  http://www.semanticweb.org/cwe#LanguageName
 :LanguageName rdf:type owl:DatatypeProperty ,
                        owl:FunctionalProperty ;
-              rdfs:domain :Language ;
+              rdfs:domain [ rdf:type owl:Class ;
+                            owl:unionOf ( :Example_Code
+                                          :Language
+                                        )
+                          ] ;
               rdfs:range [ rdf:type rdfs:Datatype ;
                            owl:oneOf [ rdf:type rdf:List ;
-                                       rdf:first "ASP" ;
+                                       rdf:first "ARM Assembly" ;
                                        rdf:rest [ rdf:type rdf:List ;
-                                                  rdf:first "ASP.NET" ;
+                                                  rdf:first "ASP" ;
                                                   rdf:rest [ rdf:type rdf:List ;
-                                                             rdf:first "Ada" ;
+                                                             rdf:first "ASP.NET" ;
                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                        rdf:first "Basic" ;
+                                                                        rdf:first "Ada" ;
                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                   rdf:first "C" ;
+                                                                                   rdf:first "Basic" ;
                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                              rdf:first "C#" ;
+                                                                                              rdf:first "C" ;
                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                         rdf:first "C++" ;
+                                                                                                         rdf:first "C#" ;
                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                    rdf:first "COBOL" ;
+                                                                                                                    rdf:first "C++" ;
                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                               rdf:first "F#" ;
+                                                                                                                               rdf:first "COBOL" ;
                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                          rdf:first "Fortran" ;
+                                                                                                                                          rdf:first "F#" ;
                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                     rdf:first "Go" ;
+                                                                                                                                                     rdf:first "Fortran" ;
                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                rdf:first "HTML" ;
+                                                                                                                                                                rdf:first "Go" ;
                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                           rdf:first "JSP" ;
+                                                                                                                                                                           rdf:first "HTML" ;
                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                      rdf:first "Java" ;
+                                                                                                                                                                                      rdf:first "JSON" ;
                                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                 rdf:first "JavaScript" ;
+                                                                                                                                                                                                 rdf:first "JSP" ;
                                                                                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                            rdf:first "Objective-C" ;
+                                                                                                                                                                                                            rdf:first "Java" ;
                                                                                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                       rdf:first "Other" ;
+                                                                                                                                                                                                                       rdf:first "JavaScript" ;
                                                                                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                  rdf:first "PHP" ;
+                                                                                                                                                                                                                                  rdf:first "Objective-C" ;
                                                                                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                             rdf:first "Pascal" ;
+                                                                                                                                                                                                                                             rdf:first "Other" ;
                                                                                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                        rdf:first "Perl" ;
+                                                                                                                                                                                                                                                        rdf:first "PHP" ;
                                                                                                                                                                                                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                   rdf:first "Python" ;
+                                                                                                                                                                                                                                                                   rdf:first "Pascal" ;
                                                                                                                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                              rdf:first "Ruby" ;
+                                                                                                                                                                                                                                                                              rdf:first "Perl" ;
                                                                                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                         rdf:first "Rust" ;
+                                                                                                                                                                                                                                                                                         rdf:first "Pseudocode" ;
                                                                                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                    rdf:first "SQL" ;
+                                                                                                                                                                                                                                                                                                    rdf:first "Python" ;
                                                                                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                               rdf:first "Shell" ;
+                                                                                                                                                                                                                                                                                                               rdf:first "Ruby" ;
                                                                                                                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                          rdf:first "Swift" ;
+                                                                                                                                                                                                                                                                                                                          rdf:first "Rust" ;
                                                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                     rdf:first "VB.NET" ;
+                                                                                                                                                                                                                                                                                                                                     rdf:first "SQL" ;
                                                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                                rdf:first "VHDL" ;
+                                                                                                                                                                                                                                                                                                                                                rdf:first "Shell" ;
                                                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                                           rdf:first "Verilog" ;
+                                                                                                                                                                                                                                                                                                                                                           rdf:first "Swift" ;
                                                                                                                                                                                                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                                                                      rdf:first "XML" ;
-                                                                                                                                                                                                                                                                                                                                                                      rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                                                                                                                      rdf:first "VB.NET" ;
+                                                                                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                 rdf:first "VHDL" ;
+                                                                                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                            rdf:first "Verilog" ;
+                                                                                                                                                                                                                                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                       rdf:first "XML" ;
+                                                                                                                                                                                                                                                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                  rdf:first "x86 Assembly" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                  rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                                                                                                                                                                ]
+                                                                                                                                                                                                                                                                                                                                                                                                     ]
+                                                                                                                                                                                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                                                                                                                                                                               ]
                                                                                                                                                                                                                                                                                                                                                                     ]
                                                                                                                                                                                                                                                                                                                                                          ]
                                                                                                                                                                                                                                                                                                                                               ]
@@ -1050,7 +981,7 @@ The FunctionalAreaEnumeration simple type defines the different functional areas
                                                 ]
                                      ]
                          ] ;
-              rdfs:comment "The LanguageNameEnumeration simple type contains a list of values corresponding to different source code languages."^^rdfs:Literal .
+              rdfs:comment "The LanguageNameEnumeration simple type contains a list of values corresponding to different source code languages or data formats." .
 
 
 ###  http://www.semanticweb.org/cwe#Likelihood
@@ -1278,25 +1209,51 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
         rdfs:domain :Example_Code ;
         rdfs:range [ rdf:type rdfs:Datatype ;
                      owl:oneOf [ rdf:type rdf:List ;
-                                 rdf:first "attack" ;
+                                 rdf:first "Attack" ;
                                  rdf:rest [ rdf:type rdf:List ;
-                                            rdf:first "bad" ;
+                                            rdf:first "Bad" ;
                                             rdf:rest [ rdf:type rdf:List ;
-                                                       rdf:first "good" ;
+                                                       rdf:first "Good" ;
                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                  rdf:first "informative" ;
+                                                                  rdf:first "Informative" ;
                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                             rdf:first "mitigation" ;
+                                                                             rdf:first "Mitigation" ;
                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                        rdf:first "result" ;
-                                                                                        rdf:rest rdf:nil
+                                                                                        rdf:first "Result" ;
+                                                                                        rdf:rest [ rdf:type rdf:List ;
+                                                                                                   rdf:first "attack" ;
+                                                                                                   rdf:rest [ rdf:type rdf:List ;
+                                                                                                              rdf:first "bad" ;
+                                                                                                              rdf:rest [ rdf:type rdf:List ;
+                                                                                                                         rdf:first "good" ;
+                                                                                                                         rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                    rdf:first "informative" ;
+                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                               rdf:first "mitigation" ;
+                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                          rdf:first "result" ;
+                                                                                                                                                          rdf:rest rdf:nil
+                                                                                                                                                        ]
+                                                                                                                                             ]
+                                                                                                                                  ]
+                                                                                                                       ]
+                                                                                                            ]
+                                                                                                 ]
                                                                                       ]
                                                                            ]
                                                                 ]
                                                      ]
                                           ]
                                ]
-                   ] .
+                   ] ;
+        rdfs:comment """The StructuredCodeNatureEnumeration sinple type defines the different values that state what type of code is being shown in an eample.
+Notes:
+- 'attack' value will be deprecated in schema 7.0 in favor of the capitalized value.
+- 'bad' value will be deprecated in schema 7.0 in favor of the capitalized value.
+- 'good' value will be deprecated in schema 7.0 in favor of the capitalized value.
+- 'informative' value will be deprecated in schema 7.0 in favor of the capitalized value.
+- 'mitigation' value will be deprecated in schema 7.0 in favor of the capitalized value.
+- 'result' value will be deprecated in schema 7.0 in favor of the capitalized value.""" .
 
 
 ###  http://www.semanticweb.org/cwe#OperatingSystemClass
@@ -1307,21 +1264,26 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
                                    owl:oneOf [ rdf:type rdf:List ;
                                                rdf:first "Linux" ;
                                                rdf:rest [ rdf:type rdf:List ;
-                                                          rdf:first "OS-Independent" ;
+                                                          rdf:first "Not OS-Specific" ;
                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                     rdf:first "Unix" ;
+                                                                     rdf:first "OS-Independent" ;
                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                rdf:first "Windows" ;
+                                                                                rdf:first "Unix" ;
                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                           rdf:first "macOS" ;
-                                                                                           rdf:rest rdf:nil
+                                                                                           rdf:first "Windows" ;
+                                                                                           rdf:rest [ rdf:type rdf:List ;
+                                                                                                      rdf:first "macOS" ;
+                                                                                                      rdf:rest rdf:nil
+                                                                                                    ]
                                                                                          ]
                                                                               ]
                                                                    ]
                                                         ]
                                              ]
                                  ] ;
-                      rdfs:comment "The OperatingSystemClassEnumeration simple type contains a list of values corresponding to different classes of operating systems. The value \"OS-Independent\" is used to associate with all operating systems."^^rdfs:Literal .
+                      rdfs:comment """The OperatingSystemClassEnumeration simple type contains a list of values corresponding to different classes of operating systems. The value \"Not OS-Specific\" is used to indicate that the entry is not limited to a small set of operating system classes, i.e., it can appear in many different operating system classes.
+'Not OS-Specific' is used to indicate that the entry is not limited to a small set of operating system classes, i.e., it can appear in many different operating system classes.
+Note: 'OS-Independent' value was changed in CWE 4.9/schema 6.9 and will be deprecated in schema 7.0. Use 'Not OS-Specific' instead.""" .
 
 
 ###  http://www.semanticweb.org/cwe#OperatingSystemName
@@ -1414,32 +1376,35 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
                                            rdf:rest [ rdf:type rdf:List ;
                                                       rdf:first "Bundling" ;
                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                 rdf:first "Distribution" ;
+                                                                 rdf:first "Decommissioning and End-of-Life" ;
                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                            rdf:first "Documentation" ;
+                                                                            rdf:first "Distribution" ;
                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                       rdf:first "Implementation" ;
+                                                                                       rdf:first "Documentation" ;
                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                  rdf:first "Installation" ;
+                                                                                                  rdf:first "Implementation" ;
                                                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                                                             rdf:first "Integration" ;
+                                                                                                             rdf:first "Installation" ;
                                                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                                                        rdf:first "Manufacturing" ;
+                                                                                                                        rdf:first "Integration" ;
                                                                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                   rdf:first "Operation" ;
+                                                                                                                                   rdf:first "Manufacturing" ;
                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                              rdf:first "Patching and Maintenance" ;
+                                                                                                                                              rdf:first "Operation" ;
                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                         rdf:first "Policy" ;
+                                                                                                                                                         rdf:first "Patching and Maintenance" ;
                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                    rdf:first "Porting" ;
+                                                                                                                                                                    rdf:first "Policy" ;
                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                               rdf:first "Requirements" ;
+                                                                                                                                                                               rdf:first "Porting" ;
                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                          rdf:first "System Configuration" ;
+                                                                                                                                                                                          rdf:first "Requirements" ;
                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                     rdf:first "Testing" ;
-                                                                                                                                                                                                     rdf:rest rdf:nil
+                                                                                                                                                                                                     rdf:first "System Configuration" ;
+                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                rdf:first "Testing" ;
+                                                                                                                                                                                                                rdf:rest rdf:nil
+                                                                                                                                                                                                              ]
                                                                                                                                                                                                    ]
                                                                                                                                                                                         ]
                                                                                                                                                                              ]
@@ -1584,50 +1549,59 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
                                                               rdf:rest [ rdf:type rdf:List ;
                                                                          rdf:first "Bishop" ;
                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                    rdf:first "CERT C Secure Coding" ;
+                                                                                    rdf:first "CERT C Coding Standard" ;
                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                               rdf:first "CERT C++ Secure Coding" ;
+                                                                                               rdf:first "CERT C Secure Coding" ;
                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                          rdf:first "CLASP" ;
+                                                                                                          rdf:first "CERT C++ Coding Standard" ;
                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                     rdf:first "Landwehr" ;
+                                                                                                                     rdf:first "CERT C++ Secure Coding" ;
                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                rdf:first "OMG ASCMM" ;
+                                                                                                                                rdf:first "CLASP" ;
                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                           rdf:first "OMG ASCPEM" ;
+                                                                                                                                           rdf:first "ISA/IEC 62443" ;
                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                      rdf:first "OMG ASCRM" ;
+                                                                                                                                                      rdf:first "Landwehr" ;
                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                 rdf:first "OMG ASCSM" ;
+                                                                                                                                                                 rdf:first "OMG ASCMM" ;
                                                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                            rdf:first "OWASP Top Ten" ;
+                                                                                                                                                                            rdf:first "OMG ASCPEM" ;
                                                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                       rdf:first "OWASP Top Ten 2004" ;
+                                                                                                                                                                                       rdf:first "OMG ASCRM" ;
                                                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                  rdf:first "OWASP Top Ten 2007" ;
+                                                                                                                                                                                                  rdf:first "OMG ASCSM" ;
                                                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                             rdf:first "PLOVER" ;
+                                                                                                                                                                                                             rdf:first "OWASP Top Ten" ;
                                                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                        rdf:first "Protection Analysis" ;
+                                                                                                                                                                                                                        rdf:first "OWASP Top Ten 2004" ;
                                                                                                                                                                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                   rdf:first "RISOS" ;
+                                                                                                                                                                                                                                   rdf:first "OWASP Top Ten 2007" ;
                                                                                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                              rdf:first "SEI CERT C Coding Standard" ;
+                                                                                                                                                                                                                                              rdf:first "PLOVER" ;
                                                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                         rdf:first "SEI CERT C++ Coding Standard" ;
+                                                                                                                                                                                                                                                         rdf:first "Protection Analysis" ;
                                                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                    rdf:first "SEI CERT Oracle Coding Standard for Java" ;
+                                                                                                                                                                                                                                                                    rdf:first "RISOS" ;
                                                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                               rdf:first "SEI CERT Perl Coding Standard" ;
+                                                                                                                                                                                                                                                                               rdf:first "SEI CERT C Coding Standard" ;
                                                                                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                          rdf:first "Software Fault Patterns" ;
+                                                                                                                                                                                                                                                                                          rdf:first "SEI CERT C++ Coding Standard" ;
                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                     rdf:first "The CERT Oracle Secure Coding Standard for Java (2011)" ;
+                                                                                                                                                                                                                                                                                                     rdf:first "SEI CERT Oracle Coding Standard for Java" ;
                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                rdf:first "WASC" ;
+                                                                                                                                                                                                                                                                                                                rdf:first "SEI CERT Perl Coding Standard" ;
                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                                                                                                           rdf:first "Weber, Karger, Paradkar" ;
-                                                                                                                                                                                                                                                                                                                           rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                                                                           rdf:first "Software Fault Patterns" ;
+                                                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                      rdf:first "The CERT Oracle Secure Coding Standard for Java (2011)" ;
+                                                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                 rdf:first "WASC" ;
+                                                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                            rdf:first "Weber, Karger, Paradkar" ;
+                                                                                                                                                                                                                                                                                                                                                            rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                                                                                                                                               ]
+                                                                                                                                                                                                                                                                                                                                    ]
                                                                                                                                                                                                                                                                                                                          ]
                                                                                                                                                                                                                                                                                                               ]
                                                                                                                                                                                                                                                                                                    ]
@@ -1668,20 +1642,26 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
                                           rdf:rest [ rdf:type rdf:List ;
                                                      rdf:first "Cloud Computing" ;
                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                rdf:first "Mainframe" ;
+                                                                rdf:first "ICS/OT" ;
                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                           rdf:first "Mobile" ;
+                                                                           rdf:first "Mainframe" ;
                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                      rdf:first "N-Tier" ;
+                                                                                      rdf:first "Mobile" ;
                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                 rdf:first "SOA" ;
+                                                                                                 rdf:first "N-Tier" ;
                                                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                                                            rdf:first "System on Chip" ;
+                                                                                                            rdf:first "Not Technology-Specific" ;
                                                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                                                       rdf:first "Technology-Independent" ;
+                                                                                                                       rdf:first "SOA" ;
                                                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                  rdf:first "Web Based" ;
-                                                                                                                                  rdf:rest rdf:nil
+                                                                                                                                  rdf:first "System on Chip" ;
+                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                             rdf:first "Technology-Independent" ;
+                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                        rdf:first "Web Based" ;
+                                                                                                                                                        rdf:rest rdf:nil
+                                                                                                                                                      ]
+                                                                                                                                           ]
                                                                                                                                 ]
                                                                                                                      ]
                                                                                                           ]
@@ -1692,13 +1672,16 @@ The PhaseEnumeration simple type lists different phases in the product life cycl
                                                    ]
                                         ]
                             ] ;
-                 rdfs:comment """The TechnologyClassEnumeration simple type contains a list of values corresponding to different classes of technologies. The value \"Technology-Independent\" is used to associate with all technologies.
+                 rdfs:comment """The TechnologyClassEnumeration simple type contains a list of values corresponding to different classes of technologies. The value \"Not Technology-Specific\" is used to indicate that the entry is not limited to a small set of technologies, i.e., it can appear in many different technologies.
 Notes:
-- Client Server represents technology involving a distributed application but for the purposes of CWE does not leverage a web browser.
-- Cloud Computing represents technology that involves data storage and computing power being made available to multiple users via the internet instead of using local systems, without the need for users to perform all system management themselves.
-- System on Chip represents technology that integrates all components of a computer within a single integrated circuit, to include FPGA and ASIC.
-- Web Based represents technology that involves applications or single-page sites that leverage a web browser to support client interactions.
-- Technology-Independent\" is used to associate with all classes of technologies."""^^rdfs:Literal .
+- 'Client Server' represents technology involving a distributed application but for the purposes of CWE does not leverage a web browser.
+- 'Cloud Computing' represents technology that involves data storage and computing power being made available to multiple users via the internet instead of using local systems, without the need for users to perform all system management themselves.
+- 'ICS/OT' represents technology related to Industrial Control Systems (ICS) and Operational Techology (OT), which are often considered to be distinct from Information Technology (IT) systems.
+- 'SOA' represents technology related to Service-oriented architecture (SOA).
+- 'System on Chip' represents technology that integrates all components of a computer within a single integrated circuit, to include FPGA and ASIC.
+-'Web Based' represents technology that involves applications or single-page sites that leverage a web browser to support client interactions.
+- 'Not Technology-Specific' is used to indicate that the entry is not limited to a small set of technologies, i.e., it can appear in many different technologies.
+- 'Technology-Independent' value was changed in CWE 4.9/schema 6.9 and will be deprecated in schema 7.0. Use 'Not Technology-Specific' instead.""" .
 
 
 ###  http://www.semanticweb.org/cwe#TechnologyName
@@ -1707,44 +1690,134 @@ Notes:
                 rdfs:domain :Technology ;
                 rdfs:range [ rdf:type rdfs:Datatype ;
                              owl:oneOf [ rdf:type rdf:List ;
-                                         rdf:first "Accelerator IP" ;
+                                         rdf:first "Accelerator" ;
                                          rdf:rest [ rdf:type rdf:List ;
-                                                    rdf:first "Analog and Mixed Signal IP" ;
+                                                    rdf:first "Accelerator Hardware" ;
                                                     rdf:rest [ rdf:type rdf:List ;
-                                                               rdf:first "Audio/Video IP" ;
+                                                               rdf:first "Analog and Mixed Signal Hardware" ;
                                                                rdf:rest [ rdf:type rdf:List ;
-                                                                          rdf:first "Bus/Interface IP" ;
+                                                                          rdf:first "Analog and Mixed Signal IP" ;
                                                                           rdf:rest [ rdf:type rdf:List ;
-                                                                                     rdf:first "Clock/Counter IP" ;
+                                                                                     rdf:first "Audio/Video" ;
                                                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                                                rdf:first "Communication IP" ;
+                                                                                                rdf:first "Audio/Video Hardware" ;
                                                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                                                           rdf:first "Controller IP" ;
+                                                                                                           rdf:first "Audio/Video IP" ;
                                                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                                                      rdf:first "Database Server" ;
+                                                                                                                      rdf:first "Bus/Interface" ;
                                                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                 rdf:first "Memory IP" ;
+                                                                                                                                 rdf:first "Bus/Interface Hardware" ;
                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                            rdf:first "Microcontroller IP" ;
+                                                                                                                                            rdf:first "Bus/Interface IP" ;
                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                       rdf:first "Network on Chip IP" ;
+                                                                                                                                                       rdf:first "Clock/Counter" ;
                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                  rdf:first "Other" ;
+                                                                                                                                                                  rdf:first "Clock/Counter Hardware" ;
                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                             rdf:first "Power Management IP" ;
+                                                                                                                                                                             rdf:first "Clock/Counter IP" ;
                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                        rdf:first "Processor IP" ;
+                                                                                                                                                                                        rdf:first "Communication" ;
                                                                                                                                                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                   rdf:first "Security IP" ;
+                                                                                                                                                                                                   rdf:first "Communication Hardware" ;
                                                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                              rdf:first "Sensor IP" ;
+                                                                                                                                                                                                              rdf:first "Communication IP" ;
                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                         rdf:first "Storage IP" ;
+                                                                                                                                                                                                                         rdf:first "Controller" ;
                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                    rdf:first "Test/Debug IP" ;
+                                                                                                                                                                                                                                    rdf:first "Controller Hardware" ;
                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
-                                                                                                                                                                                                                                               rdf:first "Web Server" ;
-                                                                                                                                                                                                                                               rdf:rest rdf:nil
+                                                                                                                                                                                                                                               rdf:first "Controller IP" ;
+                                                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                          rdf:first "Database Server" ;
+                                                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                     rdf:first "Memory" ;
+                                                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                rdf:first "Memory  IP " ;
+                                                                                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                           rdf:first "Memory Hardware" ;
+                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                      rdf:first "Microcontroller" ;
+                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                 rdf:first "Microcontroller Hardware" ;
+                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                            rdf:first "Microcontroller IP" ;
+                                                                                                                                                                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                       rdf:first "Network on Chip" ;
+                                                                                                                                                                                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                  rdf:first "Network on Chip Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                             rdf:first "Network on Chip IP" ;
+                                                                                                                                                                                                                                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                        rdf:first "Other" ;
+                                                                                                                                                                                                                                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                   rdf:first "Power Management" ;
+                                                                                                                                                                                                                                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                              rdf:first "Power Management Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                         rdf:first "Power Management IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                         rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                    rdf:first "Processor" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                    rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                               rdf:first "Processor Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                               rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                          rdf:first "Processor IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                          rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                     rdf:first "Security" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                rdf:first "Security Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                           rdf:first "Security IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                           rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      rdf:first "Sensor" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 rdf:first "Sensor Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            rdf:first "Sensor IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       rdf:first "Storage" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  rdf:first "Storage Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             rdf:first "Storage IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rdf:first "Test/Debug" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   rdf:first "Test/Debug Hardware" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              rdf:first "Test/Debug IP" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         rdf:first "Web Server" ;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         rdf:rest rdf:nil
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                              ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   ]
+                                                                                                                                                                                                                                                                                                                                                                                                                                        ]
+                                                                                                                                                                                                                                                                                                                                                                                                                             ]
+                                                                                                                                                                                                                                                                                                                                                                                                                  ]
+                                                                                                                                                                                                                                                                                                                                                                                                       ]
+                                                                                                                                                                                                                                                                                                                                                                                            ]
+                                                                                                                                                                                                                                                                                                                                                                                 ]
+                                                                                                                                                                                                                                                                                                                                                                      ]
+                                                                                                                                                                                                                                                                                                                                                           ]
+                                                                                                                                                                                                                                                                                                                                                ]
+                                                                                                                                                                                                                                                                                                                                     ]
+                                                                                                                                                                                                                                                                                                                          ]
+                                                                                                                                                                                                                                                                                                               ]
+                                                                                                                                                                                                                                                                                                    ]
+                                                                                                                                                                                                                                                                                         ]
+                                                                                                                                                                                                                                                                              ]
+                                                                                                                                                                                                                                                                   ]
+                                                                                                                                                                                                                                                        ]
                                                                                                                                                                                                                                              ]
                                                                                                                                                                                                                                   ]
                                                                                                                                                                                                                        ]
@@ -1768,19 +1841,51 @@ Notes:
                 rdfs:comment """The TechnologyNameEnumeration simple type contains a list of values corresponding to different technologies. A technology represents a generally accepted feature of a system and often refers to a high-level functional component within a system.
 Within this context, \"IP\" stands for \"Intellectual Property\" and is the term used to distinguish unique blocks within a System on Chip, with each block potentially coming from a different source.
 Notes:
-- Accelerator IP dedicated to offload a specific workload to enhance performance: DSP, packet processing, mathematical, compression, etc.
-- Analog and Mixed Signal IP that controls/senses the electricals for communication which receives/transmits signals conditioned outside of a system’s digital domain.
-- Audio/Video IP designed to manipulate audio/video data: coders/decoders, speech recognition, format converters, etc.
-- Bus/Interface IP implementing an interconnect among elements in a computing system: I2C, PCIe, DDR, MMC, USB, GPIO, NoC, etc.
-- Clock/Counter IP reflecting the passage of time in oscillations or human units: Real Time Clock, Watchdog, Monotonic Counter, etc.
-- Communication IP designed to transmit/receive information: Modulator/Demodulator, GPS, 802.11, Bluetooth, CDMA/DSM, etc.
-- Controller IP circuit hard-wired (e.g., an FSM) to react in a closed-loop control system or other limited context, to control another entity: Arbiter, APIC, USB, Peripheral, Memory, Storage, etc.
-- Memory IP implementing volatile (transient) data storage: DRAM, SRAM, etc.
-- Microcontroller IP implementing a specialized processor acting as a programmable controller.
-- Power Management IP that controls and/or monitors the power state of a system: voltage regulators, power controllers, power monitors, etc.
-- Processor IP implementing a general-purpose computing engine: CPU, GPU, RISC, CISC, etc.
-- Security IP designed to protect assets: cryptography, auth, tamper detection, etc.
-- Test/Debug IP designed to verify functionality and identify root cause of defects: JTAG, BIST, boundary scan, pattern generator, etc."""^^rdfs:Literal .
+- 'Accelerator Hardware' hardware Intellectual Property (IP) dedicated to offload a specific workload to enhance performance: DSP, packet processing, mathematical, compression, etc.
+- 'Accelerator IP Hardware' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) dedicated to offload a specific workload to enhance performance: DSP, packet processing, mathematical, compression, etc.
+- 'Accelerator' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) dedicated to offload a specific workload to enhance performance: DSP, packet processing, mathematical, compression, etc.
+- 'Analog and Mixed Signal Hardware' hardware Intellectual Property (IP) that controls/senses the electricals for communication which receives/transmits signals conditioned outside of a system’s digital domain.
+- 'Analog and Mixed Signal IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) that controls/senses the electricals for communication which receives/transmits signals conditioned outside of a system’s digital domain.
+- 'Analog and Mixed Signal' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) that controls/senses the electricals for communication which receives/transmits signals conditioned outside of a system’s digital domain.
+- 'Audio/Video Hardware' hardware Intellectual Property (IP) designed to manipulate audio/video data: coders/decoders, speech recognition, format converters, etc.
+- 'Audio/Video IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) designed to manipulate audio/video data: coders/decoders, speech recognition, format converters, etc
+- 'Audio/Video' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) designed to manipulate audio/video data: coders/decoders, speech recognition, format converters, etc.
+- 'Bus/Interface Hardware' hardware Intellectual Property (IP) implementing an interconnect among elements in a computing system: I2C, PCIe, DDR, MMC, USB, GPIO, NoC, etc.
+- 'Bus/Interface IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) implementing an interconnect among elements in a computing system: I2C, PCIe, DDR, MMC, USB, GPIO, NoC, etc.
+- 'Bus/Interface' value will be deprecated in schema 7.0. It was only used in CWE 4.7.  Hardware Intellectual Property (IP) implementing an interconnect among elements in a computing system: I2C, PCIe, DDR, MMC, USB, GPIO, NoC, etc.
+- 'Clock/Counter Hardware' hardware Intellectual Property (IP) reflecting the passage of time in oscillations or human units: Real Time Clock, Watchdog, Monotonic Counter, etc.
+- 'Clock/Counter IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) reflecting the passage of time in oscillations or human units: Real Time Clock, Watchdog, Monotonic Counter, etc.
+- 'Clock/Counter' value will be deprecated in schema 7.0. It was only used in CWE 4.7.  Hardware Intellectual Property (IP) reflecting the passage of time in oscillations or human units: Real Time Clock, Watchdog, Monotonic Counter, etc.
+- 'Communication Hardware' hardware Intellectual Property (IP) designed to transmit/receive information: Modulator/Demodulator, GPS, 802.11, Bluetooth, CDMA/DSM, etc.
+- 'Communication IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) designed to transmit/receive information: Modulator/Demodulator, GPS, 802.11, Bluetooth, CDMA/DSM, etc.
+- 'Communication' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) designed to transmit/receive information: Modulator/Demodulator, GPS, 802.11, Bluetooth, CDMA/DSM, etc.
+- 'Controller Hardware' hardware Intellectual Property (IP) circuit hard-wired (e.g., an FSM) to react in a closed-loop control system or other limited context, to control another entity: Arbiter, APIC, USB, Peripheral, Memory, Storage, etc.
+- 'Controller IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) circuit hard-wired (e.g., an FSM) to react in a closed-loop control system or other limited context, to control another entity: Arbiter, APIC, USB, Peripheral, Memory, Storage, etc.
+- 'Controller' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) circuit hard-wired (e.g., an FSM) to react in a closed-loop control system or other limited context, to control another entity: Arbiter, APIC, USB, Peripheral, Memory, Storage, etc.
+- 'Memory Hardware' hardware Intellectual Property (IP) implementing volatile (transient) data storage: DRAM, SRAM, etc.
+- 'Memory IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) implementing volatile (transient) data storage: DRAM, SRAM, etc.
+- 'Memory' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) implementing volatile (transient) data storage: DRAM, SRAM, etc.
+- 'Microcontroller Hardware' hardware Intellectual Property (IP) implementing a specialized processor acting as a programmable controller.
+- 'Microcontroller IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) implementing a specialized processor acting as a programmable controller.
+- 'Microcontroller' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) implementing a specialized processor acting as a programmable controller.
+- 'Network on Chip IP' value will be deprecated in scheme 7.0.
+- 'Network on Chip' value will be deprecated in scheme 7.0. It was only used in CWE 4.7.
+- 'Power Management Hardware' hardware Intellectual Property (IP) that controls and/or monitors the power state of a system: voltage regulators, power controllers, power monitors, etc.
+- 'Power Management IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) that controls and/or monitors the power state of a system: voltage regulators, power controllers, power monitors, etc.
+- 'Power Management' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) that controls and/or monitors the power state of a system: voltage regulators, power controllers, power monitors, etc.
+- 'Processor Hardware' hardware Intellectual Property (IP) implementing a general-purpose computing engine: CPU, GPU, RISC, CISC, etc.
+- 'Processor IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) implementing a general-purpose computing engine: CPU, GPU, RISC, CISC, etc.
+- 'Processor' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) implementing a general-purpose computing engine: CPU, GPU, RISC, CISC, etc.
+- 'Security Hardware' hardware Intellectual Property (IP), including hardware security modules (HSM), designed to protect assets: cryptography, auth, tamper detection, etc.
+- 'Security IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP), including hardware security modules (HSM), designed to protect assets: cryptography, auth, tamper detection, etc.
+- 'Security' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP), including hardware security modules (HSM), designed to protect assets: cryptography, auth, tamper detection, etc.
+- 'Sensor IP' value will be deprecated in schema 7.0.
+- 'Sensor' value will be deprecated in schema 7.0. It was only used in CWE 4.7.
+- 'Storage IP' value will be deprecated in schema 7.0.
+- 'Storage' value will be deprecated in schema 7.0. It was only used in CWE 4.7.
+- 'Test/Debug Hardware' hardware Intellectual Property (IP), including hardware security modules (HSM), designed to protect assets: cryptography, auth, tamper detection, etc.
+- 'Test/Debug IP' value will be deprecated in schema 7.0. Hardware Intellectual Property (IP) designed to verify functionality and identify root cause of defects: JTAG, BIST, boundary scan, pattern generator, etc.
+- 'Test/Debug' value will be deprecated in schema 7.0. It was only used in CWE 4.7. Hardware Intellectual Property (IP) designed to verify functionality and identify root cause of defects: JTAG, BIST, boundary scan, pattern generator, etc.""" .
 
 
 ###  http://www.semanticweb.org/cwe#Type
@@ -1793,16 +1898,19 @@ Notes:
                                rdf:rest [ rdf:type rdf:List ;
                                           rdf:first "Maintenance" ;
                                           rdf:rest [ rdf:type rdf:List ;
-                                                     rdf:first "Other" ;
+                                                     rdf:first "Mapping" ;
                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                rdf:first "Relationship" ;
+                                                                rdf:first "Other" ;
                                                                 rdf:rest [ rdf:type rdf:List ;
-                                                                           rdf:first "Research Gap" ;
+                                                                           rdf:first "Relationship" ;
                                                                            rdf:rest [ rdf:type rdf:List ;
-                                                                                      rdf:first "Terminology" ;
+                                                                                      rdf:first "Research Gap" ;
                                                                                       rdf:rest [ rdf:type rdf:List ;
-                                                                                                 rdf:first "Theoretical" ;
-                                                                                                 rdf:rest rdf:nil
+                                                                                                 rdf:first "Terminology" ;
+                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                            rdf:first "Theoretical" ;
+                                                                                                            rdf:rest rdf:nil
+                                                                                                          ]
                                                                                                ]
                                                                                     ]
                                                                          ]
@@ -1811,7 +1919,7 @@ Notes:
                                         ]
                              ]
                  ] ;
-      rdfs:comment "The NoteTypeEnumeration simple type defines the different types of notes that can be associated with a weakness. An \"Applicable Platform\" note provides additional information about the list of applicable platforms for a given weakness. A \"Maintenance\" note contains significant maintenance tasks within this entry that still need to be addressed, such as clarifying the concepts involved or improving relationships. A \"Relationship\" note provides clarifying details regarding the relationships between entities. A \"Research Gap\" note identifies potential opportunities for the vulnerability research community to conduct further exploration of issues related to this weakness. It is intended to highlight parts of CWE that have not received sufficient attention from researchers. A \"Terminology\" note contains a discussion of terminology issues related to this weakness, or clarifications when there is no established terminology, or if there are multiple uses of the same key term. It is different from the Alternate_Terms element, which is focused on specific terms that are commonly used. A \"Theoretical\" note describes the weakness using vulnerability theory concepts. It should be provided as needed, especially in cases where the application of vulnerability theory is not necessarily obvious for the weakness."^^rdfs:Literal .
+      rdfs:comment "The NoteTypeEnumeration simple type defines the different types of notes that can be associated with a weakness. An \"Applicable Platform\" note provides additional information about the list of applicable platforms for a given weakness. A \"Maintenance\" note contains significant maintenance tasks within this entry that still need to be addressed, such as clarifying the concepts involved or improving relationships. A \"Mapping\" note provides guidance for when (and whether) to map issues to this entry or to suggest alternatives. A \"Relationship\" note provides clarifying details regarding the relationships between entities. A \"Research Gap\" note identifies potential opportunities for the vulnerability research community to conduct further exploration of issues related to this weakness. It is intended to highlight parts of CWE that have not received sufficient attention from researchers. A \"Terminology\" note contains a discussion of terminology issues related to this weakness, or clarifications when there is no established terminology, or if there are multiple uses of the same key term. It is different from the Alternate_Terms element, which is focused on specific terms that are commonly used. A \"Theoretical\" note describes the weakness using vulnerability theory concepts. It should be provided as needed, especially in cases where the application of vulnerability theory is not necessarily obvious for the weakness." .
 
 
 ###  http://www.semanticweb.org/cwe#Version
@@ -1844,12 +1952,16 @@ The OrdinalityEnumeration simple type contains a list of values used to indicate
 #    Classes
 #################################################################
 
-###  http://www.semanticweb.org/cht_c/capec#CAPEC
+###  http://www.semanticweb.org/capec#CAPEC
 capec:CAPEC rdf:type owl:Class .
 
 
-###  http://www.semanticweb.org/cht_c/cpe#CPEEntry
-cpe:CPEEntry rdf:type owl:Class .
+###  http://www.semanticweb.org/cht_c/nvd#CVE
+<http://www.semanticweb.org/cht_c/nvd#CVE> rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/cpe#CPEEntry
+<http://www.semanticweb.org/cpe#CPEEntry> rdf:type owl:Class .
 
 
 ###  http://www.semanticweb.org/cwe#Applicable_Platform
@@ -2054,10 +2166,6 @@ The required Description should be short and limited to the key points that defi
 The required ID attribute provides a unique identifier for the entry. It is considered static for the lifetime of the entry. If this entry becomes deprecated, the identifier will not be reused. The required Name attribute is a string that identifies the entry. The name should focus on the weakness being described and should avoid mentioning the attack that exploits the weakness or the consequences of exploiting the weakness. All words in the entry name should be capitalized except for articles and prepositions, unless they begin or end the name. Subsequent words in a hyphenated chain are also not capitalized. The required Abstraction attribute defines the abstraction level for this weakness. The required Structure attribute defines the structural nature of the weakness. The required Status attribute defines the maturity of the information for this weakness."""^^rdfs:Literal .
 
 
-###  http://www.semanticweb.org/cht_c/nvd#CVE
-<http://www.semanticweb.org/cht_c/nvd#CVE> rdf:type owl:Class .
-
-
 #################################################################
 #    Annotations
 #################################################################
@@ -2077,7 +2185,7 @@ The optional Detection_Method_ID attribute is used by the internal CWE team to u
 :Note rdfs:comment "The NotesType complex type contains one or more Note elements, each of which is used to provide any additional comments about an entry that cannot be captured using other elements."^^rdfs:Literal .
 
 
-:Observed_Example rdfs:comment "The ObservedExampleType complex type specifies references to a specific observed instance of a weakness in real-world products. Typically this will be a CVE reference. Each Observed_Example element represents a single example. The optional Reference element should contain the identifier for the example being cited. For example, if a CVE is being cited, it should be of the standard CVE identifier format, such as CVE-2005-1951 or CVE-1999-0046. The required Description element should contain a product-independent description of the example being cited. The description should present an unambiguous correlation between the example being described and the weakness that it is meant to exemplify. It should also be short and easy to understand. The Link element should provide a valid URL where more information regarding this example can be obtained."^^rdfs:Literal .
+:Observed_Example rdfs:comment "The ObservedExampleType complex type specifies references to a specific observed instance of a weakness in real-world products. Typically this will be a CVE reference. Each Observed_Example element represents a single example. The required Reference element should contain the identifier for the example being cited. For example, if a CVE is being cited, it should be of the standard CVE identifier format, such as CVE-2005-1951 or CVE-1999-0046. The required Description element should contain a brief description of the weakness being cited, without including irrelevant details such as the product name or attack vectors. The description should present an unambiguous correlation between the example being described and the weakness(es) that it is meant to exemplify. It should also be short and easy to understand. The Link element should provide a valid URL where more information regarding this example can be obtained." .
 
 
 :Potential_Mitigation rdfs:comment """The PotentialMitigationsType complex type is used to describe potential mitigations associated with a weakness. It contains one or more Mitigation elements, which each represent individual mitigations for the weakness. The Phase element indicates the development life cycle phase during which this particular mitigation may be applied. The Strategy element describes a general strategy for protecting a system to which this mitigation contributes. The Effectiveness element summarizes how effective the mitigation may be in preventing the weakness. The Description element contains a description of this individual mitigation including any strengths and shortcomings of this mitigation for the weakness.
@@ -2099,4 +2207,4 @@ The optional Mitigation_ID attribute is used by the internal CWE team to uniquel
 ] .
 
 
-###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
+###  Generated by the OWL API (version 4.5.25.2023-02-15T19:15:49Z) https://github.com/owlcs/owlapi

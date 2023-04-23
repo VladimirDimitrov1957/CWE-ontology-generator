@@ -1,4 +1,3 @@
-@prefix cve: <http://www.semanticweb.org/cht_c/cve#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix cpe: <http://www.semanticweb.org/cht_c/cpe#> .
 @prefix cwe: <http://www.semanticweb.org/cht_c/cwe#> .

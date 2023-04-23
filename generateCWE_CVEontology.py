@@ -18,9 +18,7 @@ def generateIndividuals(root):
                         
         fn = "cve.ttl"
         with open(fn, mode='w', encoding='utf-8') as out_file:
-                
                 generateShell(out_file)
-
                 for item in root.findall(LS + "Weaknesses/" + LS + "Weakness/" + LS + "Observed_Examples/" + LS + "Observed_Example/" + LS + "Reference"):
                         print(item.text)
                         if item.text.startswith("CVE"): out_file.write("\r:" + item.text + "\r\trdf:type owl:NamedIndividual;\r\trdf:type :CVE .")

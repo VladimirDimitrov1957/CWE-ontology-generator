@@ -18,9 +18,7 @@ def generateIndividuals(root):
                         
         fn = "capec.ttl"
         with open(fn, mode='w', encoding='utf-8') as out_file:
-
                 generateShell(out_file)
-
                 for item in root.findall(LS + "Weaknesses/" + LS + "Weakness/" + LS + "Related_Attack_Patterns/" + LS + "Related_Attack_Pattern"):
                         print("CAPEC-" + item.attrib["CAPEC_ID"])
                         out_file.write("\r:CAPEC-" + item.attrib["CAPEC_ID"] + "\r\trdf:type owl:NamedIndividual;\r\trdf:type :CAPEC .")

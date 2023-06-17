@@ -20,7 +20,7 @@ Core Definition
 January 31, 2023
 Copyright (c) 2006-2023, The MITRE Corporation. All rights reserved. The contents of this file are subject to the terms of the CWE License located at https://cwe.mitre.org/about/termsofuse.html. See the CWE License for the specific language governing permissions and limitations for use of this schema. When distributing copies of the CWE Schema, this license header must be included."""@en ;
                                   rdfs:isDefinedBy "Vladimir Dimitrov"@en ;
-                                  owl:versionInfo "1.4"@en .
+                                  owl:versionInfo "1.7"@en .
 
 #################################################################
 #    Annotation properties
@@ -375,7 +375,7 @@ xsd:string rdf:type rdfs:Datatype .
 ###  http://www.semanticweb.org/cwe#Related_Attack_Pattern
 :Related_Attack_Pattern rdf:type owl:ObjectProperty ;
                         rdfs:domain :Weakness ;
-                        rdfs:range capec:CAPEC ;
+                        rdfs:range capec:Attack_Pattern ;
                         rdfs:comment "The RelatedAttackPatternsType complex type contains references to attack patterns associated with this weakness. The association implies those attack patterns may be applicable if an instance of this weakness exists. Each related attack pattern is identified by a CAPEC identifier."@en .
 
 
@@ -1946,8 +1946,8 @@ Weakness_Ordinality"""@en .
 #    Classes
 #################################################################
 
-###  http://www.semanticweb.org/capec#CAPEC
-capec:CAPEC rdf:type owl:Class .
+###  http://www.semanticweb.org/capec#Attack_Pattern
+capec:Attack_Pattern rdf:type owl:Class .
 
 
 ###  http://www.semanticweb.org/cht_c/nvd#CVE
@@ -1959,7 +1959,12 @@ capec:CAPEC rdf:type owl:Class .
 
 
 ###  http://www.semanticweb.org/cwe#Applicable_Platform
-:Applicable_Platform rdf:type owl:Class .
+:Applicable_Platform rdf:type owl:Class ;
+                     owl:disjointUnionOf ( :Architecture
+                                           :Language
+                                           :Operating_System
+                                           :Technology
+                                         ) .
 
 
 ###  http://www.semanticweb.org/cwe#Architecture
@@ -2192,6 +2197,23 @@ The optional Mitigation_ID attribute is used by the internal CWE team to uniquel
 #################################################################
 #    General axioms
 #################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( capec:Attack_Pattern
+                <http://www.semanticweb.org/cht_c/nvd#CVE>
+                <http://www.semanticweb.org/cpe#CPEEntry>
+                :Applicable_Platform
+                :Consequence
+                :Demonstrative_Example
+                :Detection_Method
+                :Example_Code
+                :Note
+                :Observed_Example
+                :Potential_Mitigation
+                :Taxonomy_Mapping
+              )
+] .
+
 
 [ rdf:type owl:AllDisjointClasses ;
   owl:members ( :Category

@@ -711,7 +711,7 @@ def generateIndividuals(root):
         print("Processing finished")
 
 def main(download):
-        print("CWE Ontology Generator, Version 6.4")
+        print("CWE Ontology Generator, Version 6.5")
         start = datetime.now()
         print(start)
         if download:
